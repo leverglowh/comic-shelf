@@ -37,7 +37,7 @@ def get_read_comics(user, limit = 10):
     series_issues = (
         Issue.objects
         .filter(userreadissue__user=user)
-        .order_by('userreadissue__date')
+        .order_by('-userreadissue__date')
         .values(series=F('series_fk__id'), issue=F('id'), date=F('userreadissue__date'))
         .distinct()
     )

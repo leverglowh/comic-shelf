@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.paginator import Paginator
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -52,7 +53,19 @@ def user_comics(request, username):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        return Response(get_read_comics(user, limit=0))
+        comics = get_read_comics(user, limit=0)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(comics, 12)
+        comicListObject = paginator.get_page(page)
+
+        responseObject = {
+            "total": paginator.count,
+            "pages": paginator.num_pages,
+            "page": comicListObject.number,
+            "size": 12,
+            "read_comics": list(comicListObject),
+        }
+        return Response(responseObject, status=status.HTTP_200_OK)
 
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
