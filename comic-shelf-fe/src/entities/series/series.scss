@@ -1,0 +1,14 @@
+#series-page-body {
+  padding-bottom: 20px;
+}
+
+#series-page-comics-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.no-results {
+   margin: 20px 0;
+}

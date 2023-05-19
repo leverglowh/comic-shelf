@@ -1,0 +1,16 @@
+#home-page {
+  padding: 0;
+  padding-bottom: 10px;
+
+  h2 {
+    text-align: left;
+  }
+}
+
+#home-page-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  justify-content: space-around;
+}

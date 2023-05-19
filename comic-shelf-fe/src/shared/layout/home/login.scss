@@ -1,0 +1,36 @@
+#login-form {
+  .form-group {
+    width: 100% !important;
+  }
+}
+
+#login-google,
+#login-discord {
+  cursor: pointer;
+}
+
+.pre-login-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+
+  .providers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .text-or {
+    text-align: center;
+  }
+}
+
+#login-remember-me {
+  margin-left: 0 !important;
+}
+
+#login-remember-me-label {
+  margin-left: 1.5em;
+}
