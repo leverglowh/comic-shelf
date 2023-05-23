@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import { IRootState } from 'src/shared/reducers';
 import { getEntities as getSeriesList, reset as resetSeries } from 'src/entities/series/series.reducer';
 import { Button, Form, Spinner, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import SingleSeriesCard from './components/series-card';
+import { useAppSelector, useAppDispatch } from 'src/shared/reducers/hooks';
 import { IPaginationState, PaginationBar } from 'src/shared/util/components/pagination-bar';
 import './series.scss';
 
-export interface ISeriesProps extends StateProps, DispatchProps {}
+const Series: React.FC = () => {
+  const seriesList = useAppSelector((state) => state.series.entities);
+  const seriesCount = useAppSelector((state) => state.series.totalCount);
+  const isLoading = useAppSelector((state) => state.series.loading);
 
-const Series: React.FC<ISeriesProps> = (props) => {
+  const dispatch = useAppDispatch();
+
   const [pagination, setPagination] = useState<IPaginationState>({
     currentPage: 0,
     itemsCount: 0,
@@ -22,7 +25,7 @@ const Series: React.FC<ISeriesProps> = (props) => {
    * Resets all fetched series data.
    */
   useEffect(() => () => {
-      props.resetSeries();
+      dispatch(resetSeries());
     }
   , []);
 
@@ -30,15 +33,15 @@ const Series: React.FC<ISeriesProps> = (props) => {
     window.scrollTo(0, 0);
     setPagination({
       ...pagination,
-      itemsCount: props.seriesCount,
+      itemsCount: seriesCount,
     })
-  }, [props.seriesList]);
+  }, [seriesList]);
 
   useEffect(() => {
-    if (searchText && !props.seriesList.length && !props.loading) {
+    if (searchText && !seriesList.length && !isLoading) {
       setShowNoResults(true);
     }
-  }, [props.seriesList]);
+  }, [seriesList]);
 
   const handleSearchTextChange = (e) => {
     setShowNoResults(false);
@@ -46,7 +49,7 @@ const Series: React.FC<ISeriesProps> = (props) => {
   };
 
   const handleSearch = () => {
-    if (searchText) props.getSeriesList(searchText);
+    if (searchText) dispatch(getSeriesList(searchText));
   };
 
   const handleKeyPress = (e) => {
@@ -59,7 +62,7 @@ const Series: React.FC<ISeriesProps> = (props) => {
   const handlePageSelection = (newSelectedPage: number) => {
     if (newSelectedPage !== pagination.currentPage && searchText) {
       // selected new page, fetch data
-      props.getSeriesList(searchText, newSelectedPage);
+      dispatch(getSeriesList(searchText, newSelectedPage));
       setPagination({
         ...pagination,
         currentPage: newSelectedPage,
@@ -84,12 +87,12 @@ const Series: React.FC<ISeriesProps> = (props) => {
         </Form>
       </div>
       <div id="series-page-comics-container">
-        {props.loading && (
+        {isLoading && (
           <div className='loading-section'>
             <Spinner style={{ width: '2rem', height: '2rem' }} animation='grow' />
           </div>
         )}
-        {props.seriesList?.map((series) => (
+        {seriesList?.map((series) => (
           <SingleSeriesCard key={series.id} series={series} />
         ))}
         {showNoResults && (
@@ -103,17 +106,4 @@ const Series: React.FC<ISeriesProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ series }: IRootState) => ({
-  seriesList: series.entities,
-  seriesCount: series.totalCount,
-  loading: series.loading,
-});
-
-const mapDispatchToProps = {
-  getSeriesList,
-  resetSeries,
-};
-
-type StateProps = ReturnType<typeof mapStateToProps>;
-type DispatchProps = typeof mapDispatchToProps;
-export default connect(mapStateToProps, mapDispatchToProps)(Series);
+export default Series;

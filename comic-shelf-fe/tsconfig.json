@@ -28,5 +28,19 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "rules": {
+    "trailing-comma": [
+      true,
+      {
+        "singleline": "never",
+        "multiline": {
+          "objects": "never",
+          "arrays": "always",
+          "functions": "never",
+          "typeLiterals": "never"
+        }
+      }
+    ]
+  }
 }

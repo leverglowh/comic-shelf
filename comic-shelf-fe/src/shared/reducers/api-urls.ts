@@ -1,7 +1,7 @@
 export const strapiUrl =
   process.env.NODE_ENV === 'production'
     ? 'https://read-comics-db.herokuapp.com/api/'
-    : 'http://localhost:1337/api/';
+    : 'http://localhost:8000/api/';
 
 export const BASE_MARVEL_URL = 'https://gateway.marvel.com';
 

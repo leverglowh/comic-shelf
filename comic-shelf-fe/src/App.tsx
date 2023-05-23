@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { connect } from 'react-redux';
 import MyRoutes from './routes';
 
 import Header from './shared/layout/header/header';
@@ -35,4 +34,4 @@ function App() {
   );
 }
 
-export default connect()(App);
+export default App;

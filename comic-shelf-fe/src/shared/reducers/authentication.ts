@@ -20,7 +20,7 @@ export const ACTION_TYPES = {
   ERROR_MESSAGE: 'authentication/ERROR_MESSAGE',
 };
 
-const initialState = {
+export const initialState = {
   loading: false,
   isAuthenticated: false,
   loginSuccess: false,

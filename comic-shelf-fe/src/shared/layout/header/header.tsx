@@ -1,30 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Nav, Navbar, NavbarBrand, NavItem } from 'reactstrap';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { IRootState } from 'src/shared/reducers';
+import { useAppSelector, useAppDispatch } from 'src/shared/reducers/hooks';
 import { getMe, updateUser } from 'src/shared/reducers/authentication';
 import { saveItemToLocalStorage } from 'src/shared/util/general-utils';
 
 import './header.scss';
 
-export interface IHeaderProps extends StateProps, DispatchProps {}
-
-const Header: React.FC<IHeaderProps> = (props) => {
+const Header: React.FC = (props) => {
   const [isAccountMenuOpen, setAccountMenuOpen] = useState(false);
+  const user = useAppSelector((state) => state.authentication.user);
+  const isAuthLoading = useAppSelector((state) => state.authentication.loading);
+  const isAuthenticated = useAppSelector((state) => state.authentication.isAuthenticated);
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    props.getMe();
+    dispatch(getMe());
+    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
-    if (props.isAuthenticated) {
+    if (isAuthenticated) {
       let private_key = localStorage.getItem('PRIVATE_API_KEY');
       let public_key = localStorage.getItem('PUBLIC_API_KEY');
       let shouldUpdateCredentialToDB = 0;
       const regex = /^[a-z0-9]+$/;
       if (!public_key) {
-        public_key = props.user.marvelAPICredentials?.public || null;
+        public_key = user.marvelAPICredentials?.public || null;
         if (!public_key) shouldUpdateCredentialToDB++;
         while (!public_key) {
           public_key = prompt('Need API public key');
@@ -32,7 +34,7 @@ const Header: React.FC<IHeaderProps> = (props) => {
         saveItemToLocalStorage('PUBLIC_API_KEY', public_key);
       }
       if (!private_key) {
-        private_key = props.user.marvelAPICredentials?.private || null;
+        private_key = user.marvelAPICredentials?.private || null;
         if (!private_key) shouldUpdateCredentialToDB++;
         while (!private_key) {
           private_key = prompt('Need API private key');
@@ -42,10 +44,11 @@ const Header: React.FC<IHeaderProps> = (props) => {
       }
       if (shouldUpdateCredentialToDB) updateMarvelCredentials(public_key, private_key);
     }
-  }, [props.isAuthenticated]);
+    // eslint-disable-next-line
+  }, [isAuthenticated]);
 
   const updateMarvelCredentials = (publicKey: string, privateKey: string) => {
-    updateUser({ ...props.user, marvelAPICredentials: { public: publicKey, private: privateKey } });
+    updateUser({ ...user, marvelAPICredentials: { public: publicKey, private: privateKey } });
   };
 
   const toggleAccountMenu = () => {
@@ -53,7 +56,7 @@ const Header: React.FC<IHeaderProps> = (props) => {
   };
 
   const refresh = () => {
-    if (props.authLoading) return;
+    if (isAuthLoading) return;
     localStorage.clear();
     sessionStorage.clear();
     window.location.reload();
@@ -62,51 +65,26 @@ const Header: React.FC<IHeaderProps> = (props) => {
   return (
     <div id='header'>
       <Navbar bg='light' expand>
-        <NavbarBrand href='/'>ComicsREAD</NavbarBrand>
+        <NavbarBrand href='/'>ComicShelf</NavbarBrand>
         <Nav className='mr-auto' navbar>
-          <NavItem>
-            <Link className='nav-link' to='/characters'>
-              Characters
-            </Link>
-          </NavItem>
           <NavItem>
             <Link className='nav-link' to='/series'>
               Series
             </Link>
           </NavItem>
           <NavItem>
-            <Link
-              className='nav-link'
-              to={{ pathname: 'https://github.com/leverglowh/read-comics-tracker' }}
-              target='_blank'
-            >
-              GitHub
-            </Link>
+            <a
+              target="_blank"
+              rel="noreferrer"
+              className="nav-link"
+              href="https://github.com/leverglowh/comic-shelf"
+            >GitHub</a>
           </NavItem>
-          {/*
-          <UncontrolledDropdown nav inNavbar>
-            <DropdownToggle nav caret>
-              Options
-            </DropdownToggle>
-            <DropdownMenu right>
-              <DropdownItem>
-                Option 1
-              </DropdownItem>
-              <DropdownItem>
-                Option 2
-              </DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>
-                Reset
-              </DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-          */}
         </Nav>
         <div className='header-float-right'>
-          {props.isAuthenticated ? (
+          {isAuthenticated ? (
             <Dropdown navbar show={isAccountMenuOpen} onToggle={toggleAccountMenu}>
-              <DropdownToggle id={props.user.username}>{props.user.username}</DropdownToggle>
+              <DropdownToggle id={user.username}>{user.username}</DropdownToggle>
               <DropdownMenu align='right'>
                 <DropdownItem href='/logout'>logout</DropdownItem>
               </DropdownMenu>
@@ -133,18 +111,4 @@ const Header: React.FC<IHeaderProps> = (props) => {
   );
 };
 
-const mapStateToProps = ({ authentication }: IRootState) => ({
-  user: authentication.user,
-  isAuthenticated: authentication.isAuthenticated,
-  authLoading: authentication.loading,
-});
-
-const mapDispatchToProps = {
-  getMe,
-  updateUser
-};
-
-type StateProps = ReturnType<typeof mapStateToProps>;
-type DispatchProps = typeof mapDispatchToProps;
-
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default Header;
